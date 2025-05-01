@@ -1,5 +1,3 @@
----
-
 # 🏥 Medical Appointment App
 
 Une application web/mobile moderne permettant :
@@ -39,8 +37,6 @@ Une application web/mobile moderne permettant :
 - Enregistrer les paiements
 - Générer les reçus
 
----
-
 ## 🛠️ Stack technique
 
 - **Next.js v15** – Framework React moderne
@@ -48,8 +44,6 @@ Une application web/mobile moderne permettant :
 - **MySQL** – Base de données relationnelle
 - **TypeScript** – Typage statique
 - **Tailwind CSS** – Pour le design rapide et responsive
-
----
 
 ## 🔧 Installation et configuration
 
@@ -91,8 +85,6 @@ Une application web/mobile moderne permettant :
    npm run dev
    ```
 
----
-
 ## 🔐 Authentification & Accès
 
 L’interface est divisée en 3 vues en fonction du rôle de l'utilisateur :
@@ -102,7 +94,6 @@ L’interface est divisée en 3 vues en fonction du rôle de l'utilisateur :
 - `Réception` → `/dashboard/reception`
 
 > Il faudra entrer manuellement le chemin d'accès car l'authentification n'est pas totalement au point
----
 
 ## 🚀 Roadmap (suggestions)
 
@@ -111,5 +102,3 @@ L’interface est divisée en 3 vues en fonction du rôle de l'utilisateur :
 - Application mobile via **React Native** ou **Expo**
 - Gestion des **disponibilités médecins**
 - Paiement en ligne
-
----
