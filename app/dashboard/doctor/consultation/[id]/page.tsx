@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
+  ArrowLeft,
   Calendar,
   FileText,
   Folder,
@@ -260,12 +261,17 @@ export default function ConsultationPage({
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Consultation</h1>
-          <p className="text-muted-foreground">
-            {appointmentData.date} à {appointmentData.time} -{" "}
-            {appointmentData.reason}
-          </p>
+        <div className="flex flex-row gap-2">
+          <Button variant="outline" onClick={() => router.back()}>
+            <ArrowLeft />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Consultation</h1>
+            <p className="text-muted-foreground">
+              {appointmentData.date} à {appointmentData.time} -{" "}
+              {appointmentData.reason}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Badge
@@ -277,9 +283,7 @@ export default function ConsultationPage({
           >
             {appointmentData.status === "in-progress" ? "En cours" : "Terminé"}
           </Badge>
-          <Button variant="outline" onClick={() => router.back()}>
-            Retour
-          </Button>
+
           <Button variant="outline" onClick={saveDraft} disabled={isSaving}>
             {isSaving ? "Enregistrement..." : "Enregistrer"}
           </Button>

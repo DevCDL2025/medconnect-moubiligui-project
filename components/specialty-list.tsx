@@ -92,7 +92,9 @@ export function SpecialtyList() {
   const router = useRouter();
 
   const handleSelectSpecialty = (specialtyId: string) => {
-    router.push(`new/doctors?specialty=${specialtyId}`);
+    specialtyId === "general"
+      ? router.push("/general-practitioners")
+      : router.push(`new/doctors?specialty=${specialtyId}`);
   };
 
   return (
