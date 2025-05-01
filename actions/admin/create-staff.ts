@@ -5,7 +5,7 @@ import { createUser } from "@/actions/user/create-user";
 import { currentUser } from "@/lib/auth";
 
 export async function createStaffMember(
-  role: "medecin" | "receptionniste",
+  role: "doctor" | "receptionniste",
   formData: FormData
 ) {
   const user = await currentUser();
@@ -22,7 +22,7 @@ export async function createStaffMember(
   };
 
   const profileData =
-    role === "medecin"
+    role === "doctor"
       ? {
           nom: formData.get("nom"),
           prenom: formData.get("prenom"),

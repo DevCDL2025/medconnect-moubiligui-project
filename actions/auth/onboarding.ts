@@ -4,7 +4,6 @@
 import { Genre } from "@/lib/generated/prisma";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Utilisateur } from "../../lib/generated/prisma/index";
 
 export async function completeOnboarding(prevState: any, formData: FormData) {
   const userId = formData.get("userId");
@@ -41,7 +40,7 @@ export async function completeOnboarding(prevState: any, formData: FormData) {
   } catch (error) {
     console.error("Erreur lors de l'onboarding:", error);
     return { error: "Une erreur est survenue" };
-  } finally {
-    redirect("/dashboard");
+  } finally{
+    redirect('/auth/login')
   }
 }

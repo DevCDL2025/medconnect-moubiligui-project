@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,19 +17,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
-import { login } from "@/actions/auth/login";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  const [state, formAction] = useActionState(login, null);
-  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login, loading } = useAuth();
 
-  useEffect(() => {
-    if (state?.message) {
-      toast.error(state.message);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await login(email, password);
+      // La redirection sera automatiquement gérée par redirectToRoleHome
+    } catch (err) {
+      setError("Email ou mot de passe incorrect");
+      toast.error(error);
     }
-  }, [state]);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -56,7 +64,7 @@ export default function LoginPage() {
             Entrez vos identifiants pour accéder à votre compte
           </CardDescription>
         </CardHeader>
-        <form action={formAction}>
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4 pb-5">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -66,10 +74,8 @@ export default function LoginPage() {
                 type="email"
                 placeholder="exemple@email.com"
                 required
+                onChange={(e) => setEmail(e.target.value)}
               />
-              {state?.errors?.email && (
-                <p className="text-sm text-red-500">{state.errors.email[0]}</p>
-              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -81,14 +87,17 @@ export default function LoginPage() {
                   Mot de passe oublié?
                 </Link>
               </div>
-              <Input id="password" name="password" type="password" required />
-              {state?.errors?.email && (
-                <p className="text-sm text-red-500">{state.errors.email[0]}</p>
-              )}
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <SubmitButton />
+            <SubmitButton pending={loading} />
             <div className="text-center text-sm">
               Vous n'avez pas de compte?{" "}
               <Link
@@ -105,8 +114,7 @@ export default function LoginPage() {
   );
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending ? (

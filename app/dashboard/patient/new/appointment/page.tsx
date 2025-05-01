@@ -7,24 +7,15 @@ export const metadata: Metadata = {
     "Sélectionnez une date et un créneau horaire pour votre rendez-vous",
 };
 
-export default function AppointmentPage({
+export default async function AppointmentPage({
   searchParams,
 }: {
-  searchParams: { doctor: string };
+  searchParams: Promise<{ doctor: string }>;
 }) {
-  const doctorId = searchParams.doctor || "";
+  const doctorId = (await searchParams).doctor;
 
   return (
     <div className="px-4">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-2">
-          Choisissez votre créneau 📅
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Sélectionnez une date et un horaire qui vous conviennent
-        </p>
-      </div>
-
       <AppointmentScheduler doctorId={doctorId} />
     </div>
   );

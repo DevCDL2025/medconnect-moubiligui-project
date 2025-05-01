@@ -6,9 +6,7 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-
-const user = {};
-const isLoading = false;
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 export default function DashboardLayout({
   children,
@@ -16,6 +14,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const { user, loading: isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -37,7 +36,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen flex-col">
-      <DashboardNav />
+      <DashboardNav user={user} />
       <div className="flex-1 p-4 md:p-8">{children}</div>
     </div>
   );

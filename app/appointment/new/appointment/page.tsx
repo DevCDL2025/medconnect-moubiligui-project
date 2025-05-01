@@ -16,15 +16,6 @@ export default function AppointmentPage({
 
   return (
     <div className="py-12 px-4">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-2">
-          Choisissez votre créneau 📅
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Sélectionnez une date et un horaire qui vous conviennent
-        </p>
-      </div>
-
       <AppointmentScheduler doctorId={doctorId} />
     </div>
   );

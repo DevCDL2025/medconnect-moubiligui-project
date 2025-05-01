@@ -18,10 +18,10 @@ export function Footer() {
             >
               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
-            <span className="text-xl font-bold">MediConnect</span>
+            <span className="text-xl font-bold">MedConnect</span>
           </div>
           <p className="text-sm text-gray-500">
-            © 2025 MediConnect. Tous droits réservés.
+            © 2025 MedConnect. Tous droits réservés.
           </p>
         </div>
         <div className="flex flex-col gap-2 md:flex-row md:gap-8">

@@ -3,7 +3,6 @@
 
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 // Schéma de validation étendu
@@ -70,7 +69,9 @@ export async function registerPatient(
     const newUser = await prisma.$transaction(async (prisma) => {
       const user = await prisma.utilisateur.create({
         data: {
-          email,
+          email: email,
+          nom: firstName,
+          prenom: lastName,
           mot_de_passe_hash: hashedPassword,
           role: "patient",
         },

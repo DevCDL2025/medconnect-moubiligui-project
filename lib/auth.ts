@@ -1,13 +1,15 @@
+"use server";
 // lib/auth.ts
 import bcrypt from "bcryptjs";
 import { UserRole } from "@/lib/validations/user";
 import prisma from "./prisma";
 import { cookies } from "next/headers";
-import { validateSession } from "@/actions/auth/session";
+import { createSession, validateSession } from "@/actions/auth/session";
 
 export type AuthUser = {
   id: number;
   email: string;
+  fullname: string;
   type: UserRole;
   patientId?: string;
   medecinId?: number;
@@ -48,10 +50,22 @@ export async function authenticateUser(
       data: { dernier_login: new Date() },
     });
 
+    // Création de la session
+    const session = await createSession(user.id);
+
+    // Stockage du cookie de session
+    (await cookies()).set("session_token", session.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 semaine
+      path: "/",
+    });
+
     // Retourner les informations de l'utilisateur authentifié
     return {
       id: user.id,
       email: user.email,
+      fullname: user.nom + " " + user.prenom,
       type: user.role as UserRole,
       patientId: user.Patient?.id,
       medecinId: user.Medecin?.id,
@@ -61,12 +75,6 @@ export async function authenticateUser(
     console.error("Authentication error:", error);
     return null;
   }
-}
-
-export async function currentUser(): Promise<AuthUser | null> {
-  // Implémentation dépendante de votre gestion de session
-  // Voir plus bas pour l'implémentation avec next-auth
-  throw new Error("Implémentez cette fonction selon votre gestion de session");
 }
 
 export async function getUserById(id: number): Promise<AuthUser | null> {
@@ -86,6 +94,7 @@ export async function getUserById(id: number): Promise<AuthUser | null> {
       id: user.id,
       email: user.email,
       type: user.role as UserRole,
+      fullname: user.nom + " " + user.prenom,
       patientId: user.Patient?.id,
       medecinId: user.Medecin?.id,
       receptionnisteId: user.Receptionniste?.id,

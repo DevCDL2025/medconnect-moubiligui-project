@@ -1,7 +1,7 @@
 // app/onboarding/page.tsx
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import { completeOnboarding } from "@/actions/auth/onboarding";
 
 export default function OnboardingPage() {
@@ -20,7 +19,7 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (!userId) {
-      window.location.href = "/register";
+      window.location.href = "/auth/register";
     }
   }, [userId]);
 
@@ -40,7 +39,11 @@ export default function OnboardingPage() {
         </CardHeader>
 
         {step === 1 ? (
-          <PersonalInfoStep userId={userId} onComplete={() => setStep(2)} />
+          <PersonalInfoStep
+            userId={userId}
+            onComplete={() => setStep(2)}
+            login={() => redirect("/auth/login")}
+          />
         ) : (
           <MedicalInfoStep
             userId={userId}
@@ -56,9 +59,11 @@ export default function OnboardingPage() {
 function PersonalInfoStep({
   userId,
   onComplete,
+  login,
 }: {
   userId: number;
   onComplete: () => void;
+  login: () => void;
 }) {
   return (
     <>
@@ -97,6 +102,9 @@ function PersonalInfoStep({
       <div className="px-6 pb-6">
         <Button className="w-full" onClick={onComplete}>
           Continuer
+        </Button>
+        <Button className="w-full" onClick={login}>
+          Remplir plutard
         </Button>
       </div>
     </>

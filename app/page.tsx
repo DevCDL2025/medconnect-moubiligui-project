@@ -24,7 +24,7 @@ export default function Home() {
             >
               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
-            <span className="text-xl font-bold">MediConnect</span>
+            <span className="text-xl font-bold">MedConnect</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link
@@ -50,7 +50,7 @@ export default function Home() {
             <Link href="/appointment">
               <Button variant="outline">Demo</Button>
             </Link>
-            <Link href="/register">
+            <Link href="/auth/register">
               <Button className="bg-teal-600 hover:bg-teal-700">
                 Inscription
               </Button>

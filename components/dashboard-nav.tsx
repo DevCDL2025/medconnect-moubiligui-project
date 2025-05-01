@@ -25,13 +25,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogoutButton } from "./logout-button";
+import { AuthUser } from "@/lib/auth";
 
-const user = {
-  name: "Jonhathan",
-  role: "patient",
-};
-
-export function DashboardNav() {
+export function DashboardNav({ user }: { user: AuthUser }) {
   const pathname = usePathname();
   const segments = pathname.split("/dashboard/")[1]?.split("/") || [];
   const userRole = segments[0]; // "patient" ou "doctor" (ou undefined)
@@ -40,7 +36,7 @@ export function DashboardNav() {
 
   // Navigation items based on user role
   const getNavItems = () => {
-    if (!user?.role) return [];
+    if (!user?.type) return [];
 
     const role = userRole;
     const basePath = `/dashboard/${role}`;
@@ -152,7 +148,7 @@ export function DashboardNav() {
                 >
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
-                <span className="text-xl font-bold">MediConnect</span>
+                <span className="text-xl font-bold">MedConnect</span>
               </div>
               <nav className="flex flex-col gap-2">
                 {navItems.map((item, index) => (
@@ -175,7 +171,7 @@ export function DashboardNav() {
               </nav>
             </SheetContent>
           </Sheet>
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -189,7 +185,7 @@ export function DashboardNav() {
               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
             <span className="text-xl font-bold hidden md:inline">
-              MediConnect
+              MedConnect
             </span>
           </Link>
         </div>
@@ -212,7 +208,7 @@ export function DashboardNav() {
         <div className="flex items-center gap-4">
           <div className="hidden md:block text-sm">
             <p className="font-medium">
-              {userRole === "doctor" ? `Dr. ${user?.name}` : user?.name}
+              {userRole === "doctor" ? `Dr. ${user?.fullname}` : user?.fullname}
             </p>
             <p className="text-muted-foreground capitalize">{userRole}</p>
           </div>
@@ -225,10 +221,10 @@ export function DashboardNav() {
                 <Avatar>
                   <AvatarImage
                     src="/placeholder.svg"
-                    alt={user?.name || "User"}
+                    alt={user?.email || "User"}
                   />
                   <AvatarFallback className="bg-teal-100 text-teal-800">
-                    {user?.name
+                    {user?.email
                       ?.split(" ")
                       .map((n) => n[0])
                       .join("") || "U"}

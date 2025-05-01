@@ -20,7 +20,7 @@ export type CreateUserResponse = {
 export async function createUser(
   userData: unknown,
   profileData: unknown,
-  role: "patient" | "medecin" | "receptionniste"
+  role: "patient" | "doctor" | "receptionniste"
 ): Promise<CreateUserResponse> {
   try {
     // Validation des données utilisateur de base
@@ -63,9 +63,9 @@ export async function createUser(
         });
         break;
 
-      case "medecin":
+      case "doctor":
         const medecinData = MedecinSchema.parse(profileData);
-        await prisma.medecin.create({
+        await prisma.doctor.create({
           data: {
             utilisateur_id: user.id,
             ...medecinData,

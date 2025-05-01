@@ -59,7 +59,7 @@ export default function RegisterPage() {
           <CardContent className="space-y-4 pb-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">Prénom*</Label>
+                <Label htmlFor="firstName">Nom*</Label>
                 <Input
                   id="firstName"
                   name="firstName"
@@ -73,7 +73,7 @@ export default function RegisterPage() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Nom*</Label>
+                <Label htmlFor="lastName">Prenom*</Label>
                 <Input
                   id="lastName"
                   name="lastName"

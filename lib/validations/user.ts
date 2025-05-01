@@ -2,12 +2,7 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
-export const UserRole = z.enum([
-  "patient",
-  "medecin",
-  "receptionniste",
-  "admin",
-]);
+export const UserRole = z.enum(["patient", "doctor", "reception", "admin"]);
 export type UserRole = z.infer<typeof UserRole>;
 
 export const UserSchema = z.object({

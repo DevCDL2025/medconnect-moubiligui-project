@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   description: "Sélectionnez le médecin pour votre rendez-vous",
 };
 
-export default function DoctorsPage({
+export default async function DoctorsPage({
   searchParams,
 }: {
-  searchParams: { specialty?: string };
+  searchParams: Promise<{ specialty: string }>;
 }) {
-  const specialty = searchParams.specialty || "";
+  const specialty = (await searchParams).specialty;
 
   return (
     <div className="px-4">

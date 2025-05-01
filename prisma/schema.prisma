@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -15,41 +12,47 @@ datasource db {
 }
 
 model Utilisateur {
-  id                 Int       @id @default(autoincrement())
-  email              String    @unique
-  mot_de_passe_hash  String
-  role               UtilisateurType
-  date_creation      DateTime  @default(now())
-  dernier_login      DateTime?
-  est_actif          Boolean   @default(true)
-  Patient            Patient?
-  Medecin            Medecin?
-  Receptionniste     Receptionniste?
-  Session         Session[]
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
+  nom               String
+  prenom            String
+  mot_de_passe_hash String
+  role              UtilisateurType
+  date_creation     DateTime  @default(now())
+  dernier_login     DateTime?
+  est_actif         Boolean   @default(true)
+  Patient           Patient?
+  Medecin           Medecin?
+  Receptionniste    Receptionniste?
+  Session           Session[]
 }
 
 enum UtilisateurType {
   patient
-  medecin
-  receptionniste
+  doctor
+  reception
   admin
 }
 
 model Patient {
-  id              String      @id @default(uuid())
-  utilisateur_id  Int      @unique
-  date_naissance  DateTime
-  genre           Genre
-  adresse         String?
-  telephone       String?
-  assurance       String?
-  numero_assurance String?
-  allergies       String?
-  antecedents     String?
-  utilisateur     Utilisateur @relation(fields: [utilisateur_id], references: [id])
-  rendezVous      RendezVous[]
+  id                String         @id @default(uuid())
+  utilisateur_id    Int            @unique
+  date_naissance    DateTime
+  genre             Genre
+  adresse           String?
+  telephone         String?
+  assurance         String?
+  numero_assurance  String?
+  allergies         String?
+  antecedents       String?
+  est_oriente       Boolean        @default(false) // Indique si le patient a été orienté par un généraliste
+  medecin_referent  Int?           // ID du généraliste référent si applicable
+  utilisateur       Utilisateur    @relation(fields: [utilisateur_id], references: [id])
+  rendezVous        RendezVous[]
+  consultations     Consultation[]
+  dossierMedical    DossierMedical?
 
-  Consultation Consultation[]
+  Medecin Medecin[] @relation("MedecinReferent")
 }
 
 enum Genre {
@@ -59,38 +62,40 @@ enum Genre {
 }
 
 model Medecin {
-  id              Int      @id @default(autoincrement())
-  utilisateur_id  Int      @unique
-  nom             String
-  prenom          String
-  specialite      String
-  numero_licence  String   @unique
-  est_generaliste Boolean  @default(false)
-  utilisateur     Utilisateur @relation(fields: [utilisateur_id], references: [id])
-  plagesHoraires  PlageHoraire[]
-  rendezVous      RendezVous[]
-  consultations   Consultation[]
-
-  Indisponibilite Indisponibilite[]
+  id                Int               @id @default(autoincrement())
+  utilisateur_id    Int               @unique
+  specialite        String
+  numero_licence    String            @unique
+  est_generaliste   Boolean           @default(false)
+  disponibilite_24h Boolean           @default(false) // Pour les généralistes disponibles 24/24
+  delai_moyen       Int?              // Délai moyen de RDV en jours
+  bio               String?           // Courte description du médecin
+  experiences       String?           // Expériences professionnelles
+  diplomes          String?           // Formations et diplômes
+  utilisateur       Utilisateur       @relation(fields: [utilisateur_id], references: [id])
+  plagesHoraires    PlageHoraire[]
+  rendezVous        RendezVous[]
+  consultations     Consultation[]
+  indisponibilites  Indisponibilite[]
+  patientsReferes   Patient[]         @relation("MedecinReferent") // Patients référés par ce médecin généraliste
 }
 
 model Receptionniste {
-  id              Int      @id @default(autoincrement())
-  utilisateur_id  Int      @unique
-  nom             String
-  prenom          String
-  utilisateur     Utilisateur @relation(fields: [utilisateur_id], references: [id])
+  id             Int         @id @default(autoincrement())
+  utilisateur_id Int         @unique
+  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id])
 }
 
 model PlageHoraire {
-  id                   Int        @id @default(autoincrement())
-  medecin_id           Int
-  jour_semaine         JourSemaine
-  heure_debut          DateTime
-  heure_fin            DateTime
-  duree_consultation   Int        @default(15)
-  est_active           Boolean    @default(true)
-  medecin              Medecin    @relation(fields: [medecin_id], references: [id])
+  id                  Int         @id @default(autoincrement())
+  medecin_id          Int
+  jour_semaine        JourSemaine
+  heure_debut         DateTime
+  heure_fin           DateTime
+  duree_consultation  Int         @default(15) // Durée en minutes
+  est_active          Boolean     @default(true)
+  types_consultation  TypeConsultation[] // Relation many-to-many avec TypeConsultation
+  medecin             Medecin     @relation(fields: [medecin_id], references: [id])
 }
 
 enum JourSemaine {
@@ -103,21 +108,37 @@ enum JourSemaine {
   Dimanche
 }
 
+model TypeConsultation {
+  id                  Int            @id @default(autoincrement())
+  type                 String         @unique
+  description         String?
+  duree_par_defaut    Int            @default(15) // Durée en minutes
+  necessite_generaliste Boolean      @default(false) // Si ce type nécessite une orientation par un généraliste
+  plagesHoraires      PlageHoraire[]
+  rendezVous          RendezVous[]
+}
+
 model RendezVous {
-  id              Int        @id @default(autoincrement())
-  patient_id      String
-  medecin_id      Int
-  date_heure      DateTime
-  duree           Int        @default(15)
-  statut          StatutRdv  @default(confirme)
-  motif           String?
-  date_creation   DateTime   @default(now())
-  cree_par        CreePar
-  est_urgence     Boolean    @default(false)
-  patient         Patient    @relation(fields: [patient_id], references: [id])
-  medecin         Medecin    @relation(fields: [medecin_id], references: [id])
-  salleAttente    SalleAttente?
-  consultation    Consultation?
+  id                  Int                @id @default(autoincrement())
+  patient_id          String
+  medecin_id          Int
+  type_consultation_id Int
+  date_heure          DateTime
+  duree               Int                @default(15)
+  statut              StatutRdv          @default(confirme)
+  motif               String?
+  date_creation       DateTime           @default(now())
+  cree_par            CreePar
+  est_urgence         Boolean            @default(false)
+  est_premiere_visite Boolean            @default(false)
+  est_oriente_generaliste Boolean        @default(false) // Si RDV a été recommandé par un généraliste
+  confirmation_envoyee Boolean           @default(false)
+  rappel_envoye       Boolean            @default(false)
+  patient             Patient            @relation(fields: [patient_id], references: [id])
+  medecin             Medecin            @relation(fields: [medecin_id], references: [id])
+  typeConsultation    TypeConsultation   @relation(fields: [type_consultation_id], references: [id])
+  salleAttente        SalleAttente?
+  consultation        Consultation?
 }
 
 enum StatutRdv {
@@ -131,16 +152,18 @@ enum StatutRdv {
 enum CreePar {
   patient
   receptionniste
+  medecin
   systeme
 }
 
 model SalleAttente {
-  id             Int        @id @default(autoincrement())
-  rendez_vous_id Int        @unique
-  heure_arrivee  DateTime   @default(now())
+  id             Int           @id @default(autoincrement())
+  rendez_vous_id Int           @unique
+  heure_arrivee  DateTime      @default(now())
   statut         StatutAttente @default(en_attente)
-  priorite       Int        @default(0)
-  rendezVous     RendezVous @relation(fields: [rendez_vous_id], references: [id])
+  priorite       Int           @default(0)
+  temps_attente_estime Int?    // Temps d'attente estimé en minutes
+  rendezVous     RendezVous    @relation(fields: [rendez_vous_id], references: [id])
 }
 
 enum StatutAttente {
@@ -151,8 +174,8 @@ enum StatutAttente {
 }
 
 model Consultation {
-  id                Int        @id @default(autoincrement())
-  rendez_vous_id    Int        @unique
+  id                Int              @id @default(autoincrement())
+  rendez_vous_id    Int              @unique
   medecin_id        Int
   patient_id        String
   date_heure_debut  DateTime
@@ -160,41 +183,58 @@ model Consultation {
   symptomes         String?
   diagnostic        String?
   notes             String?
-  rendezVous        RendezVous @relation(fields: [rendez_vous_id], references: [id])
-  medecin           Medecin    @relation(fields: [medecin_id], references: [id])
-  patient           Patient    @relation(fields: [patient_id], references: [id])
+  recommandations   String?
+  suivi_necessaire  Boolean          @default(false)
+  rendezVous        RendezVous       @relation(fields: [rendez_vous_id], references: [id])
+  medecin           Medecin          @relation(fields: [medecin_id], references: [id])
+  patient           Patient          @relation(fields: [patient_id], references: [id])
   ordonnances       Ordonnance[]
   examensPrescrits  ExamenPrescrit[]
+  resultatExamens   ResultatExamen[]
+  documentation     Documentation[]
 }
 
 model Ordonnance {
-  id              Int        @id @default(autoincrement())
+  id              Int                  @id @default(autoincrement())
   consultation_id Int
-  date_creation   DateTime   @default(now())
+  date_creation   DateTime             @default(now())
   instructions    String?
-  est_archive     Boolean    @default(false)
-  consultation    Consultation @relation(fields: [consultation_id], references: [id])
+  est_archive     Boolean              @default(false)
+  consultation    Consultation         @relation(fields: [consultation_id], references: [id])
   medicaments     MedicamentPrescrit[]
 }
 
 model MedicamentPrescrit {
-  id            Int      @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   ordonnance_id Int
   medicament    String
   posologie     String
   duree         String
+  instructions  String?
   ordonnance    Ordonnance @relation(fields: [ordonnance_id], references: [id])
 }
 
 model ExamenPrescrit {
-  id                Int       @id @default(autoincrement())
+  id                Int              @id @default(autoincrement())
   consultation_id   Int
   type_examen       String
   instructions      String?
-  est_realise       Boolean   @default(false)
+  est_realise       Boolean          @default(false)
   date_realisation  DateTime?
   resultat          String?
-  consultation      Consultation @relation(fields: [consultation_id], references: [id])
+  consultation      Consultation     @relation(fields: [consultation_id], references: [id])
+  resultatExamen    ResultatExamen?
+}
+
+model ResultatExamen {
+  id                Int            @id @default(autoincrement())
+  examen_id         Int            @unique
+  consultation_id   Int
+  date_resultat     DateTime       @default(now())
+  commentaire       String?
+  necessite_suivi   Boolean        @default(false)
+  examen            ExamenPrescrit @relation(fields: [examen_id], references: [id])
+  consultation      Consultation   @relation(fields: [consultation_id], references: [id])
 }
 
 model Indisponibilite {
@@ -203,16 +243,59 @@ model Indisponibilite {
   date_debut  DateTime
   date_fin    DateTime
   motif       String?
+  est_recurrente Boolean @default(false)
+  frequence   Frequence? // Pour les indisponibilités récurrentes
   medecin     Medecin   @relation(fields: [medecin_id], references: [id])
 }
 
+enum Frequence {
+  Quotidien
+  Hebdomadaire
+  Mensuel
+  Annuel
+}
 
 model Session {
-  id            Int        @id @default(autoincrement())
-  token         String     @unique
+  id            Int         @id @default(autoincrement())
+  token         String      @unique
   utilisateur   Utilisateur @relation(fields: [utilisateur_id], references: [id])
   utilisateur_id Int
   expires_at    DateTime
-  created_at    DateTime   @default(now())
-  updated_at    DateTime   @updatedAt
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+}
+
+model DossierMedical {
+  id              String   @id @default(uuid())
+  patient_id      String   @unique
+  date_creation   DateTime @default(now())
+  derniere_maj    DateTime @updatedAt
+  groupe_sanguin  String?
+  poids           Float?
+  taille          Int?     // en cm
+  imc             Float?
+  patient         Patient  @relation(fields: [patient_id], references: [id])
+  documentation   Documentation[]
+}
+
+model Documentation {
+  id                Int           @id @default(autoincrement())
+  titre             String
+  type_document     TypeDocument
+  date_creation     DateTime      @default(now())
+  contenu           String?       // Pour les documents textuels
+  url_fichier       String?       // Pour les documents externes (PDF, images, etc.)
+  dossier_medical_id String?
+  consultation_id   Int?
+  dossierMedical    DossierMedical? @relation(fields: [dossier_medical_id], references: [id])
+  consultation      Consultation? @relation(fields: [consultation_id], references: [id])
+}
+
+enum TypeDocument {
+  ResultatLabo
+  ImagerieMedicale
+  CompteRendu
+  OrientationSpecialiste
+  DocumentIdentite
+  Autre
 }

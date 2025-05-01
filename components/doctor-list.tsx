@@ -125,10 +125,11 @@ export function DoctorList({ specialty }: { specialty: string }) {
     : doctors;
 
   const handleSelectDoctor = (doctorId: string) => {
-    if (!pathname.startsWith("/dashboard/patient")) {
+    if (pathname.startsWith("/dashboard/patient")) {
+      router.push(`appointment?doctor=${doctorId}`);
+    } else {
       router.push(`chat?doctor=${doctorId}`);
     }
-    router.push(`appointment?doctor=${doctorId}`);
   };
 
   return (

@@ -161,7 +161,9 @@ export function AppointmentScheduler({ doctorId }: { doctorId: string }) {
   };
 
   const handleNewAppointment = () => {
-    router.push("/appointment/new");
+    isPatient
+      ? router.push("/dashboard/patient")
+      : router.push("/appointment/new");
   };
 
   // Générer les données pour le QR code
@@ -325,96 +327,113 @@ export function AppointmentScheduler({ doctorId }: { doctorId: string }) {
             )}
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Button onClick={handleNewAppointment}>
-              Prendre un autre rendez-vous
-            </Button>
+            {isPatient ? (
+              <Button onClick={handleNewAppointment}>Retour à l'acceuil</Button>
+            ) : (
+              <Button onClick={handleNewAppointment}>
+                Prendre un autre rendez-vous
+              </Button>
+            )}
           </CardFooter>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5" />
-                Choisissez une date
-              </CardTitle>
-              <CardDescription>
-                Sélectionnez le jour qui vous convient le mieux
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleDateChange}
-                locale={fr}
-                disabled={{ before: addDays(new Date(), 1) }}
-                className="rounded-md border"
-              />
-            </CardContent>
-          </Card>
+        <div>
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold tracking-tight mb-2">
+              Choisissez votre créneau 📅
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Sélectionnez une date et un horaire qui vous conviennent
+            </p>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Choisissez un horaire
-              </CardTitle>
-              <CardDescription>
-                {date
-                  ? `Créneaux disponibles pour le ${format(
-                      date,
-                      "d MMMM yyyy",
-                      { locale: fr }
-                    )}`
-                  : "Veuillez d'abord sélectionner une date"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {date ? (
-                availableSlots.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-2">
-                    {availableSlots.map((slot) => (
-                      <Button
-                        key={slot}
-                        variant={selectedSlot === slot ? "default" : "outline"}
-                        className={`text-center py-6 ${
-                          selectedSlot === slot ? "bg-primary" : ""
-                        }`}
-                        onClick={() => setSelectedSlot(slot)}
-                      >
-                        <Clock className="mr-2 h-4 w-4" />
-                        {slot}
-                      </Button>
-                    ))}
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CalendarIcon className="h-5 w-5" />
+                  Choisissez une date
+                </CardTitle>
+                <CardDescription>
+                  Sélectionnez le jour qui vous convient le mieux
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={handleDateChange}
+                  locale={fr}
+                  disabled={{ before: addDays(new Date(), 1) }}
+                  className="rounded-md border"
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Choisissez un horaire
+                </CardTitle>
+                <CardDescription>
+                  {date
+                    ? `Créneaux disponibles pour le ${format(
+                        date,
+                        "d MMMM yyyy",
+                        { locale: fr }
+                      )}`
+                    : "Veuillez d'abord sélectionner une date"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {date ? (
+                  availableSlots.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableSlots.map((slot) => (
+                        <Button
+                          key={slot}
+                          variant={
+                            selectedSlot === slot ? "default" : "outline"
+                          }
+                          className={`text-center py-6 ${
+                            selectedSlot === slot ? "bg-primary" : ""
+                          }`}
+                          onClick={() => setSelectedSlot(slot)}
+                        >
+                          <Clock className="mr-2 h-4 w-4" />
+                          {slot}
+                        </Button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">
+                        Aucun créneau disponible pour cette date. Veuillez
+                        sélectionner une autre date.
+                      </p>
+                    </div>
+                  )
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground">
-                      Aucun créneau disponible pour cette date. Veuillez
-                      sélectionner une autre date.
+                      Les horaires disponibles s'afficheront ici une fois que
+                      vous aurez sélectionné une date.
                     </p>
                   </div>
-                )
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    Les horaires disponibles s'afficheront ici une fois que vous
-                    aurez sélectionné une date.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-            <CardFooter>
-              <Button
-                className="w-full"
-                disabled={!date || !selectedSlot}
-                onClick={handleConfirm}
-              >
-                Confirmer le rendez-vous
-              </Button>
-            </CardFooter>
-          </Card>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full"
+                  disabled={!date || !selectedSlot}
+                  onClick={handleConfirm}
+                >
+                  Confirmer le rendez-vous
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
       )}
     </div>
